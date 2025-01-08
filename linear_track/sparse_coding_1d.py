@@ -149,7 +149,7 @@ if __name__ == "__main__":
         "N_h": 36,
         "vec_size": vec_size,
         "dt": dt,
-        "grid_files": "bin/grid1d_{}_{}.npy".format(vec_size, 0.28)
+        "grid_files": "../bin/grid2d_{}_{}.npy".format(vec_size, 0.28)
     }
 
     agent = Agent(agent_params)

@@ -3,7 +3,7 @@ from sparse_coding_1d import Sparse_Coding
 import seaborn as sns
 sns.set()
 
-with open("bin/sc_1d_36.pkl", 'rb') as f:
+with open("../bin/sc_1d_36.pkl", 'rb') as f:
     sparse_coding = pickle.load(f)
 
 sparse_coding.calc_place_field()

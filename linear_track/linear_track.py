@@ -131,6 +131,8 @@ class Sparse_Coding:
 class Pmap():
     def __init__(self, params):
         self.N = params["N"]
+        self.vec_size = params["vec_size"]  # 1024
+        self.map_size = params["map_size"]  # 1
 
         self.M = np.identity(self.N)
         self.eta = params['eta']
@@ -142,8 +144,11 @@ class Pmap():
         # x_t2 = self.input_activity(pos)
         x_t1 = pre_s_h
         x_t2 = s_h
-        for s1 in range(self.N):
-            self.M[s1, :] += self.eta * (x_t1 + self.gamma * self.M.T @ x_t2 - self.M.T @ x_t1)
+        dM = np.zeros(self.M.shape)
+        for s in range(self.N):
+            dM[s, :] += self.eta * x_t1[s] * (x_t1 + self.gamma * self.M.T @ x_t2 - self.M.T @ x_t1)
+            # self.M[s, ] += self.eta * x_t1[s] * (x_t1 + self.gamma * self.M.T @ x_t2 - self.M.T @ x_t1)
+        self.M += dM
 
     def input_activity(self, pos):
         input_act = np.zeros(self.N)
@@ -187,6 +192,24 @@ class Pmap():
                 ax[i, j].set_ylim([-0.05, 1.5])
         plt.show()
 
+    def place_field2(self, place_field_recovered):
+        X = np.linspace(0, self.map_size, self.vec_size)
+        Z = np.zeros((self.N, self.vec_size))
+        for i, x in enumerate(X):
+            input_act = place_field_recovered[i]
+            Z[:, i] = self.M.T @ input_act
+        n = int(self.N ** 0.5)
+        fig, ax = plt.subplots(n, n, figsize=(8, 8))
+        fig.subplots_adjust(left=0.05, right=0.95, bottom=0.05, top=0.95, wspace=0.05, hspace=0.05)
+        for i in range(n):
+            for j in range(n):
+                ax[i, j].plot(X, Z[n * i + j])
+                ax[i, j].plot(np.linspace(0, 1, vec_size), np.linspace(0, 1, vec_size) * 0, color='black')
+                ax[i, j].tick_params(labelbottom=False, labelleft=False, labelright=False, labeltop=False)
+                ax[i, j].tick_params(bottom=False, left=False, right=False, top=False)
+                ax[i, j].set_ylim([-0.05, 0.25])
+        plt.show()
+
 
 if __name__ == "__main__":
     T = int(1_000_000)
@@ -208,12 +231,14 @@ if __name__ == "__main__":
         "N_h": N_h,
         "vec_size": vec_size,
         "dt": dt,
-        "grid_files": "bin/grid1d_{}_{}.npy".format(vec_size, 0.28)
+        "grid_files": "../bin/grid1d_{}_{}.npy".format(vec_size, 0.28)
     }
     pmap_params = {
+        "vec_size": vec_size,
+        "map_size": map_size,
         "N": N_h,
         "eta": 0.02,
-        "gamma": 0.3
+        "gamma": 0.5
     }
 
     agent = Agent(agent_params)
@@ -227,12 +252,11 @@ if __name__ == "__main__":
         r = agent.one_step(nt, T)
         pre_s_h, s_h = sparse_coding.one_step(r)
         pmap.learning_M(pre_s_h, s_h)
-        if nt % 2000 == 0:
+        if nt % 5000 == 0:
             place_field_recovered = sparse_coding.calc_place_field()
-            # print(place_field_recovered.shape)
             sparse_coding.imshow_place_field(
                 sparse_coding.place_field_recovered,
                 'sparse_coding_1d_{}'.format(N_h),
                 display="single"
             )
-            pmap.place_field(place_field_recovered)
+            pmap.place_field2(place_field_recovered)
