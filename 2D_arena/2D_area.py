@@ -20,7 +20,7 @@ class Agent:
             print("\r{:.2f}%".format(nt / T * 100), end="")
         omega = self.rng.normal()
         self.theta += omega * dt
-        self.theta = self.theta % np.pi# - np.pi / 2
+        self.theta = self.theta % np.pi - np.pi/2
 
         self.pos[0] += self.velocity * (np.sin(self.theta + omega * dt) - np.sin(self.theta)) / omega
         self.pos[1] += self.velocity * (- np.cos(self.theta + omega * dt) + np.cos(self.theta)) / omega
@@ -28,7 +28,7 @@ class Agent:
         self.pos[1] = self.pos[1] % self.map_size
 
         self.r = np.zeros((self.vec_size, self.vec_size))
-        self.r[int(self.pos[1] * self.vec_size), int(self.pos[0] * self.vec_size)] = 1.0
+        self.r[-int(self.pos[1] * self.vec_size)-1, int(self.pos[0] * self.vec_size)] = 1.0
         return self.r
 
     def one_step_show(self, ax):
@@ -117,11 +117,25 @@ class Sparse_Coding:
         self.place_field_recovered = (X_recover @ S.T)# / np.tile(np.sum(S, axis=1), (self.vec_size**2, 1))
         return self.place_field_recovered
 
-    def imshow_place_field(self, place_field_recovered, name):
+    def imshow_place_field(self, place_field_recovered, name=None):
         place_cell_sum = np.zeros((self.vec_size, self.vec_size))
         n = int(self.N_h**0.5)
         X, Y = np.linspace(0, self.map_size, vec_size), np.linspace(0, self.map_size, vec_size)
         X, Y = np.meshgrid(X, Y)
+
+        i_cell = 95
+        fig, ax = plt.subplots(figsize=(8, 8))
+        place_cell_sum += place_field_recovered[:, i_cell].reshape(self.vec_size, self.vec_size)
+        ax.contourf(X, Y, np.abs(place_field_recovered[:, i_cell].reshape(self.vec_size, self.vec_size)),
+                          cmap='jet', levels=100)
+        ax.tick_params(
+            labelbottom=False, labelleft=False, labelright=False, labeltop=False,
+            bottom=False, left=False, right=False, top=False
+        )
+        plt.savefig("one_nsc.png")
+        plt.show()
+        plt.close()
+
         fig, ax = plt.subplots(n, n, figsize=(8, 8))
         fig.subplots_adjust(left=0.05, right=0.95, bottom=0.05, top=0.92, wspace=0.05, hspace=0.05)
         for i in range(n):
@@ -133,7 +147,8 @@ class Sparse_Coding:
                     labelbottom=False, labelleft=False, labelright=False, labeltop=False,
                     bottom=False, left=False, right=False, top=False
                 )
-        fig.suptitle(name, fontsize=20)
+        #fig.suptitle(name, fontsize=20)
+        plt.savefig("nsc.png")
         plt.show()
         plt.close()
 
@@ -209,6 +224,17 @@ class Pmap():
             x = x / sum_x
             pmap_place_field[i] = self.M.T @ x # (100, 100) x (100,) = (100,)
         n = int(self.N**0.5)
+
+        i_cell = 95
+        fig, ax = plt.subplots(figsize=(8, 8))
+        ax.imshow(pmap_place_field[:, i_cell].reshape(self.vec_size, self.vec_size), cmap="jet")
+        ax.tick_params(labelbottom=False, labelleft=False, labelright=False, labeltop=False)
+        ax.tick_params(bottom=False, left=False, right=False, top=False)
+        ax.invert_yaxis()
+        plt.savefig("one_pmap.png")
+        plt.show()
+        plt.close()
+
         fig, ax = plt.subplots(n, n, figsize=(8, 8))
         fig.subplots_adjust(left=0.05, right=0.95, bottom=0.05, top=0.95, wspace=0.05, hspace=0.05)
         for i in range(n):
@@ -216,9 +242,10 @@ class Pmap():
                 ax[i, j].imshow(pmap_place_field[:, n * i + j].reshape(self.vec_size, self.vec_size), cmap="jet")
                 ax[i, j].tick_params(labelbottom=False, labelleft=False, labelright=False, labeltop=False)
                 ax[i, j].tick_params(bottom=False, left=False, right=False, top=False)
+                ax[i, j].invert_yaxis()
+        plt.savefig("pmap.png")
         plt.show()
         plt.close()
-
 
 if __name__ == "__main__":
     T = int(1_000_000)
@@ -262,7 +289,7 @@ if __name__ == "__main__":
         print(nt)
 
         pmap.learning_M(pre_s_h, s_h)
-        if nt % 40000 == 0:
+        if nt % 10000 == 0:
             place_cell = np.zeros((N_h, vec_size**2))
             for i in range(vec_size**2):
                 r = np.zeros(vec_size**2)
@@ -290,4 +317,6 @@ if __name__ == "__main__":
                 'sparse_coding_2d_{}'.format(N_h)
             )
             sparse_coding.show_place_center(place_field_recovered)"""
+            sparse_coding.imshow_place_field(place_cell.T)
+            sparse_coding.show_place_center(place_cell.T)
             pmap.place_field(place_cell.T)

@@ -95,7 +95,14 @@ class Pmap():
             self.create_fig = True
             self.ax.set_aspect("equal")
         self.ax.imshow(self.M)
-        plt.pause(0.1)
+        self.ax.tick_params(
+            labelbottom=False, labelleft=False, labelright=False, labeltop=False,
+            bottom=False, left=False, right=False, top=False
+        )
+        plt.show()
+        plt.close()
+        self.create_fig = False
+        #plt.pause(0.1)
 
     def place_field(self):
         n = int(self.M.shape[0] ** 0.5)
@@ -105,16 +112,19 @@ class Pmap():
         self.fig.subplots_adjust(left=0.05, right=0.95, bottom=0.05, top=0.95, wspace=0.05, hspace=0.05)
         for i in range(n):
             for j in range(n):
-                place_field = self.M - np.identity(self.N)
+                place_field = self.M# - np.identity(self.N)
                 self.ax[i, j].imshow(place_field[:, n*(9-i) + j].reshape(n, n), cmap='jet')
-                self.ax[i, j].text(n/2, n/2, "({}, {})".format((9-i), j), size=10, horizontalalignment="center", verticalalignment='center', color='white')
+                #self.ax[i, j].text(n/2, n/2, "({}, {})".format((9-i), j), size=10, horizontalalignment="center", verticalalignment='center', color='white')
                 self.ax[i, j].tick_params(labelbottom=False, labelleft=False, labelright=False, labeltop=False)
                 self.ax[i, j].tick_params(bottom=False, left=False, right=False, top=False)
                 self.ax[i, j].invert_yaxis()
-        self.ax[9, 0].tick_params(labelbottom=True, labelleft=True, labelright=True, labeltop=True)
-        self.ax[9, 0].tick_params(bottom=True, left=True, right=True, top=True)
-        plt.draw()
-        plt.pause(0.1)
+        #self.ax[9, 0].tick_params(labelbottom=True, labelleft=True, labelright=True, labeltop=True)
+        #self.ax[9, 0].tick_params(bottom=True, left=True, right=True, top=True)
+        plt.show()
+        plt.close()
+        self.create_fig = False
+        #plt.draw()
+        #plt.pause(0.1)
 
     def place_field2(self):
         X, Y = np.linspace(0, self.map_size, self.vec_size), np.linspace(0, self.map_size, self.vec_size)
@@ -137,8 +147,11 @@ class Pmap():
                     labelbottom=False, labelleft=False, labelright=False, labeltop=False,
                     bottom=False, left=False, right=False, top=False
                 )
-        plt.draw()
-        plt.pause(0.1)
+        plt.show()
+        plt.close()
+
+        #plt.draw()
+        #plt.pause(0.1)
 
 
 if __name__ == "__main__":
@@ -204,5 +217,7 @@ if __name__ == "__main__":
         #    pmap.show_M()
         #if nt % 1000 == 0:
         #    pmap.place_field()
-        if nt % 5000 == 0:
+        if nt % 100000 == 0:
+            pmap.show_M()
+            pmap.place_field()
             pmap.place_field2()

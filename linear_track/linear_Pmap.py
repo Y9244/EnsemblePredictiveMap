@@ -54,13 +54,45 @@ class Pmap():
         #print(pos, loc, dist)
         return np.exp(- dist**2 / (2 * scale**2))
 
+    def show_input_activity(self):
+        X = np.linspace(0, self.map_size, self.vec_size)
+        place_cell = np.zeros((self.vec_size, self.N))
+        for i, x in enumerate(X):
+            place_cell[i] = self.input_activity(x)
+        fig, ax = plt.subplots(figsize=(10, 5))
+        for i in range(self.N):
+            ax.plot(X, place_cell[:, i], label='place cell {}'.format(i+1))
+        ax.set_xticks([i/self.N for i in range(self.N)])
+        ax.set_xticklabels([r"$s_{}$".format(i+1) for i in range(self.N)], fontsize=24)
+        ax.set_yticks([0.1*i for i in range(self.N+1)])
+        ax.set_yticklabels(["{:.1f}".format(0.1 * i) for i in range(self.N+1)], fontsize=20)
+        plt.show()
+
+
     def show_M(self):
         if not self.create_fig:
             self.fig, self.ax = plt.subplots()
             self.create_fig = True
             self.ax.set_aspect("equal")
         self.ax.imshow(self.M)
-        plt.pause(0.1)
+        self.ax.tick_params(
+            labelbottom=False, labelleft=False, labelright=False, labeltop=False,
+            bottom=False, left=False, right=False, top=False
+        )
+        plt.show()
+        plt.close()
+        n = int(self.N**0.5)
+        fig, ax = plt.subplots(n, n, figsize=(8, 8))
+        self.ax.set_aspect("equal")
+        fig.subplots_adjust(left=0.05, right=0.95, bottom=0.05, top=0.95, wspace=0.05, hspace=0.05)
+        for i in range(n):
+            for j in range(n):
+                #place_field = self.M# - np.identity(self.N)
+                ax[i, j].plot(self.M[:, n * i + j])
+                ax[i, j].tick_params(labelbottom=False, labelleft=False, labelright=False, labeltop=False)
+                ax[i, j].tick_params(bottom=False, left=False, right=False, top=False)
+                ax[i, j].set_ylim([-0.05, 1.5])
+        plt.show()
 
     def place_field(self):
         n = int(self.N**0.5)
@@ -116,12 +148,14 @@ if __name__ == "__main__":
         "vec_size": vec_size,
         "map_size": map_size,
         "N": N_h,
-        "eta": 0.1,
-        "gamma": 0.9
+        "eta": 0.01,
+        "gamma": 0.8
     }
 
     agent = Agent(agent_params)
     pmap = Pmap(pmap_params)
+    #pmap.show_input_activity()
+    #exit()
 
     #fig, ax = plt.subplots()
     for nt in range(1, T):
@@ -129,7 +163,7 @@ if __name__ == "__main__":
         t = dt * nt
         agent.one_step()
         pmap.learning_M(agent.pre_pos, agent.pos)
-        if nt % 5000 == 0:
-            #pmap.show_M()
+        if nt % 100000 == 0:
+            pmap.show_M()
             pmap.place_field2()
 
