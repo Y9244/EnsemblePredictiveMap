@@ -150,9 +150,6 @@ class Pmap():
         plt.show()
         plt.close()
 
-        #plt.draw()
-        #plt.pause(0.1)
-
 
 if __name__ == "__main__":
     T = int(1_000_000)
@@ -174,50 +171,18 @@ if __name__ == "__main__":
         "vec_size": vec_size,
         "map_size": map_size,
         "eta": 0.05,
-        "gamma": 0.9
+        "gamma": 0.8
     }
 
     agent = Agent(agent_params)
     pmap = Pmap(pmap_params)
 
-    """X, Y = np.linspace(0, map_size, vec_size), np.linspace(0, map_size, vec_size)
-    Z = np.zeros((N_h, vec_size, vec_size))
-    n = int(N_h**0.5)
-    for i, x in enumerate(X):
-        for j, y in enumerate(Y):
-            input_act = pmap.input_activity((x, y))
-            #print(Z[:, i, j].shape, input_act.shape)
-            #print(input_act.shape)
-            Z[:, j, i] = input_act
-    X, Y = np.meshgrid(X, Y)
-    fig, ax = plt.subplots(n, n, figsize=(8, 8))
-    fig.subplots_adjust(left=0.05, right=0.95, bottom=0.05, top=0.95, wspace=0.05, hspace=0.05)
-    for i in range(n):
-        for j in range(n):
-            #ax[i, j].contourf(X, Y, Z[int(N_h ** 0.5) * i + j], cmap="jet", levels=100)
-            ax[i, j].contourf(X, Y, Z[n * (9-i) + j], cmap="jet", levels=100)
-            ax[i, j].text(0.5, 0.5, "({}, {})".format(9-i, j), size=10, horizontalalignment="center", verticalalignment='center', color='white')
-            ax[i, j].set_aspect("equal")
-            ax[i, j].tick_params(
-                labelbottom=False, labelleft=False, labelright=False, labeltop=False,
-                bottom=False, left=False, right=False, top=False
-            )
-    plt.show()
-    plt.close()"""
-
-    #fig, ax = plt.subplots()
     for nt in range(1, T):
         print(nt)
         t = dt * nt
         agent.one_step(nt, T)
 
         pmap.learning_M(agent.pre_pos, agent.pos)
-        #agent.one_step_show(ax=ax, vec_size=vec_size)
-        #if nt % 1000 == 0:
-        #    pmap.show_M()
-        #if nt % 1000 == 0:
-        #    pmap.place_field()
         if nt % 100000 == 0:
             pmap.show_M()
-            pmap.place_field()
             pmap.place_field2()

@@ -29,7 +29,6 @@ X, Y = np.linspace(0, 1, vec_size), np.linspace(0, 1, vec_size)
 X, Y = np.meshgrid(X, Y)
 Z = np.zeros((N_e, vec_size, vec_size))
 
-print(X.shape, Y.shape)
 i = 0
 for lam in grid_spacing:
     for theta in grid_orientation:
@@ -44,13 +43,11 @@ for lam in grid_spacing:
                 Z[i] = (2/3) * (Z[i]/3 + 0.25)
                 i += 1
 
-#Z = np.where(Z > 1, 1, Z)
+Z = np.where(Z > 1, 1, Z)
 Z = np.where(Z < 0, 0, Z)
-print(Z[:, 15].shape)
-np.save("bin/grid1d_{}_{}.npy".format(vec_size, min_lam), Z[:, 15])
+np.save("../bin/grid1d_{}_{}.npy".format(vec_size, min_lam), Z[:, 15])
 
-
-X = np.linspace(0, 1, vec_size)
+"""X = np.linspace(0, 1, vec_size)
 for i in range(24):
     fig, ax = plt.subplots(5, 5, figsize=(8, 8))
     fig.subplots_adjust(left=0.05, right=0.95, bottom=0.05, top=0.95, wspace=0.05, hspace=0.05)
@@ -62,10 +59,20 @@ for i in range(24):
             ax[j, k].tick_params(bottom=False, left=False, right=False, top=False)
             ax[j, k].tick_params(labelbottom=False, labelleft=False, labelright=False, labeltop=False)
             ax[j, k].set_ylim([-0.05, 1])
-
     #plt.savefig("grid/grid{}.png".format(i))
     plt.show()
-    plt.close()
+    plt.close()"""
 
-
-
+n = 8
+fig, ax = plt.subplots(2, n, figsize=(1.6*n, 3.2))
+fig.subplots_adjust(left=0.05, right=0.95, bottom=0.05, top=0.95, wspace=0.05, hspace=0.05)
+for i in range(n):
+    index = rng.integers(0, 600)
+    ax[0, i].contourf(X, Y, Z[index], cmap="jet", levels=100)
+    ax[0, i].tick_params(bottom=False, left=False, right=False, top=False)
+    ax[0, i].tick_params(labelbottom=False, labelleft=False, labelright=False, labeltop=False)
+    ax[1, i].plot(np.linspace(0, 1, vec_size), Z[index, 64])
+    ax[1, i].set_ylim([-0.05, 1])
+    ax[1, i].tick_params(bottom=False, left=False, right=False, top=False)
+    ax[1, i].tick_params(labelbottom=False, labelleft=False, labelright=False, labeltop=False)
+plt.show()

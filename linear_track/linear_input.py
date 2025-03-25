@@ -1,25 +1,29 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.stats import norm
+from linear_Pmap import Pmap
 
-N = 10
-"""def norm(pos, loc):
-    dist = np.min([(pos - loc) % N, (loc - pos) % N])
-    return dist
-for i in np.linspace(0, 10, 20):
-    for j in np.linspace(0, 10, 20):
-        print(i, j, norm(i, j))
-exit()"""
+N = 6
+vec_size = 1000
+map_size = 1
+
+pmap_params = {
+        "vec_size": vec_size,
+        "map_size": map_size,
+        "N": N,
+        "eta": 0.01,
+        "gamma": 0.8
+    }
+pmap = Pmap(pmap_params)
+
+X = np.linspace(0, map_size, vec_size)
+norm_input = np.zeros((vec_size, N))
+for i, x in enumerate(X):
+    norm_input[i] = pmap.input_activity(x)
 
 fig, ax = plt.subplots()
-X = np.linspace(0, 10, 1000)
-norm_input = []
-for i in range(10):
-    norm_input.append(norm.pdf(X, loc=i, scale=0.5))
-norm_input[0] = (norm_input[0] + norm.pdf(X, loc=10, scale=0.5))
-
-for i in range(10):
-    ax.plot(X, norm_input[i], label='place cell {}'.format(i))
-ax.set_xticks([0, 1, 2,3,4,5,6,7,8,9,10])
+for i in range(N):
+    ax.plot(X, norm_input[:, i], label='place cell {}'.format(i+1))
+ax.set_xticks([i*0.1 for i in range(11)])
+ax.set_xlim([0, map_size])
 plt.legend(loc='upper right')
 plt.show()

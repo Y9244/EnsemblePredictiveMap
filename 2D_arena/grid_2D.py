@@ -29,7 +29,6 @@ X, Y = np.linspace(0, 1, vec_size), np.linspace(0, 1, vec_size)
 X, Y = np.meshgrid(X, Y)
 Z = np.zeros((N_e, vec_size, vec_size))
 
-print(X.shape, Y.shape)
 i = 0
 for lam in grid_spacing:
     for theta in grid_orientation:
@@ -44,21 +43,22 @@ for lam in grid_spacing:
                 Z[i] = (2/3) * (Z[i]/3 + 0.25)
                 i += 1
 
-#Z = np.where(Z > 1, 1, Z)
+Z = np.where(Z > 1, 1, Z)
 Z = np.where(Z < 0, 0, Z)
 np.save("../bin/grid2d_{}_{}.npy".format(vec_size, min_lam), Z)
 
+n = 10
 for i in range(24):
-    fig, ax = plt.subplots(5, 5, figsize=(8, 8))
+    fig, ax = plt.subplots(n, n, figsize=(8, 8))
     fig.subplots_adjust(left=0.05, right=0.95, bottom=0.05, top=0.95, wspace=0.05, hspace=0.05)
-    for j in range(5):
-        for k in range(5):
-            ax[j, k].contourf(X, Y, Z[i*25 + j*5 + k], cmap="jet", levels=100)
+    index = np.random.randint(0, 600, 100)
+    for j in range(n):
+        for k in range(n):
+            # print(index[j * n + k])
+            ax[j, k].contourf(X, Y, Z[index[j * n + k]], cmap="jet", levels=100)
             ax[j, k].tick_params(bottom=False, left=False, right=False, top=False)
             ax[j, k].tick_params(labelbottom=False, labelleft=False, labelright=False, labeltop=False)
-            #ax[j, k].set_ylim([-0.05, 1])
-
-    #plt.savefig("grid/grid{}.png".format(i))
+    #plt.savefig("grid{}.png".format(i), dpi=500)
     plt.show()
     plt.close()
 
