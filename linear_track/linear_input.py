@@ -1,8 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from linear_Pmap import Pmap
+from linear_track import Pmap
 
-N = 6
+N = 9
 vec_size = 1000
 map_size = 1
 
